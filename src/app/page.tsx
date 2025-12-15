@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ExternalLink, Star, Sparkles } from 'lucide-react';
 import { templates } from '@/lib/data';
 
@@ -64,15 +65,14 @@ export default function HubPage() {
             >
               <Link href={`/${template.slug}`} className="group block">
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 group-hover:border-purple-500/50 transition-all">
-                  {/* Placeholder gradient based on template */}
-                  <div
-                    className={`absolute inset-0 ${getTemplateGradient(template.slug)}`}
+                  {/* Screenshot image */}
+                  <Image
+                    src={`/screenshots/${template.slug}.png`}
+                    alt={template.name}
+                    fill
+                    className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-lg font-semibold text-white/50 group-hover:text-white/80 transition-colors">
-                      {template.name}
-                    </span>
-                  </div>
 
                   {/* Hover overlay */}
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -129,20 +129,4 @@ export default function HubPage() {
       </footer>
     </div>
   );
-}
-
-function getTemplateGradient(slug: string): string {
-  const gradients: Record<string, string> = {
-    constellation: 'bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900',
-    'trading-cards': 'bg-gradient-to-br from-amber-900 to-amber-950',
-    'trophy-wall': 'bg-gradient-to-b from-yellow-600 to-yellow-800',
-    timeline: 'bg-gradient-to-br from-slate-800 to-slate-900',
-    leaderboard: 'bg-gradient-to-br from-purple-900 to-indigo-950',
-    museum: 'bg-gradient-to-br from-stone-800 to-stone-900',
-    minimalist: 'bg-gradient-to-br from-zinc-100 to-zinc-200',
-    glassmorphism: 'bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700',
-    brutalist: 'bg-black',
-    'retro-arcade': 'bg-gradient-to-br from-green-950 to-black',
-  };
-  return gradients[slug] || 'bg-zinc-800';
 }
