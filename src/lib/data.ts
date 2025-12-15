@@ -16,6 +16,7 @@ export const legends: Legend[] = [
     socials: { twitter: 'akshaybd', website: 'superteam.fun' },
     joinedDate: '2021-06',
     featured: true,
+    xp: 28500,
     stats: { projects: 50, contributions: 200, awards: 10 },
   },
   {
@@ -32,6 +33,7 @@ export const legends: Legend[] = [
     socials: { twitter: 'kashdhanda' },
     joinedDate: '2021-06',
     featured: true,
+    xp: 26800,
     stats: { projects: 45, contributions: 180, awards: 8 },
   },
   {
@@ -47,6 +49,7 @@ export const legends: Legend[] = [
     ],
     socials: { twitter: 'tanaborat' },
     joinedDate: '2021-09',
+    xp: 22000,
     stats: { projects: 30, contributions: 100, awards: 5 },
   },
 
@@ -65,6 +68,7 @@ export const legends: Legend[] = [
     socials: { twitter: 'saborat', github: 'soju-dev' },
     joinedDate: '2022-01',
     featured: true,
+    xp: 18500,
     stats: { contributions: 500, projects: 20 },
   },
   {
@@ -80,6 +84,7 @@ export const legends: Legend[] = [
     ],
     socials: { twitter: 'pratiksaria', github: 'pratik-sol' },
     joinedDate: '2022-04',
+    xp: 15200,
     stats: { contributions: 300, projects: 15 },
   },
   {
@@ -95,6 +100,7 @@ export const legends: Legend[] = [
     ],
     socials: { twitter: 'yashagarwal', github: 'yash-sol' },
     joinedDate: '2022-06',
+    xp: 14800,
     stats: { contributions: 250, projects: 25 },
   },
 
@@ -113,6 +119,7 @@ export const legends: Legend[] = [
     socials: { twitter: 'sahilsolana' },
     joinedDate: '2022-08',
     featured: true,
+    xp: 12500,
     stats: { awards: 7, projects: 12 },
   },
   {
@@ -128,6 +135,7 @@ export const legends: Legend[] = [
     ],
     socials: { twitter: 'priyabuilds', linkedin: 'priya-sharma-sol' },
     joinedDate: '2022-09',
+    xp: 9800,
     stats: { awards: 4, projects: 8 },
   },
   {
@@ -143,6 +151,7 @@ export const legends: Legend[] = [
     ],
     socials: { twitter: 'rajnft', website: 'rajart.xyz' },
     joinedDate: '2022-05',
+    xp: 11200,
     stats: { awards: 5, projects: 6 },
   },
 
@@ -161,6 +170,7 @@ export const legends: Legend[] = [
     socials: { twitter: 'aaborat', github: 'anatoly-sol' },
     joinedDate: '2020-03',
     featured: true,
+    xp: 50000,
     stats: { contributions: 1000, projects: 100, awards: 20 },
   },
   {
@@ -176,6 +186,7 @@ export const legends: Legend[] = [
     ],
     socials: { twitter: 'rajgokal' },
     joinedDate: '2020-03',
+    xp: 45000,
     stats: { projects: 80, awards: 15 },
   },
   {
@@ -192,6 +203,7 @@ export const legends: Legend[] = [
     socials: { twitter: 'armanif', github: 'armaniferrante' },
     joinedDate: '2021-01',
     featured: true,
+    xp: 38000,
     stats: { contributions: 800, projects: 50, awards: 12 },
   },
 ];

@@ -25,6 +25,7 @@ export interface Legend {
   socials: SocialLinks;
   joinedDate: string;
   featured?: boolean;
+  xp: number;
   stats?: {
     projects?: number;
     contributions?: number;
