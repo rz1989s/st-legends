@@ -24,7 +24,7 @@ export default function MuseumPage() {
   }));
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       {/* Background */}
       <MuseumBackground />
 

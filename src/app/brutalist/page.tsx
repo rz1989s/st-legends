@@ -26,7 +26,7 @@ export default function BrutalistPage() {
   }, [selectedCategory]);
 
   return (
-    <div className="min-h-screen text-black">
+    <div className="min-h-screen overflow-x-hidden text-black">
       {/* Background */}
       <BrutalBackground variant="grid" />
 

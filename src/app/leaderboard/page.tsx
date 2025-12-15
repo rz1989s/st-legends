@@ -37,7 +37,7 @@ export default function LeaderboardPage() {
   const totalAchievements = legends.reduce((sum, l) => sum + l.achievements.length, 0);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       {/* Background */}
       <ArenaBackground />
 

@@ -23,7 +23,7 @@ export default function MinimalistPage() {
   }, [selectedCategory]);
 
   return (
-    <div className="min-h-screen text-neutral-900">
+    <div className="min-h-screen overflow-x-hidden text-neutral-900">
       {/* Background */}
       <MinimalBackground variant="light" />
 
