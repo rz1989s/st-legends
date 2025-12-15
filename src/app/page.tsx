@@ -1,65 +1,148 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { ExternalLink, Star, Sparkles } from 'lucide-react';
+import { templates } from '@/lib/data';
+
+export default function HubPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="min-h-screen bg-black text-white">
+      {/* Hero Section */}
+      <header className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-pink-900/20" />
+        <div className="absolute inset-0">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl" />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <div className="relative max-w-7xl mx-auto px-4 py-24 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <Sparkles className="text-yellow-400" size={24} />
+              <span className="text-sm font-medium text-yellow-400 uppercase tracking-wider">
+                Superteam Bounty Entry
+              </span>
+              <Sparkles className="text-yellow-400" size={24} />
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+              ST Legends
+            </h1>
+            <p className="text-xl md:text-2xl text-zinc-400 max-w-2xl mx-auto mb-8">
+              Hall of Fame Design Candidates
+            </p>
+            <p className="text-zinc-500 max-w-xl mx-auto">
+              10 unique design templates celebrating Superteam member achievements
+              in the Solana ecosystem. Click any template to preview.
+            </p>
+          </motion.div>
+        </div>
+      </header>
+
+      {/* Template Gallery */}
+      <main className="max-w-7xl mx-auto px-4 py-16">
+        <div className="flex items-center gap-3 mb-8">
+          <Star className="text-yellow-400" size={20} />
+          <h2 className="text-2xl font-bold">Design Templates</h2>
+          <span className="px-2 py-0.5 text-xs font-medium bg-zinc-800 rounded-full">
+            {templates.length} candidates
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {templates.map((template, index) => (
+            <motion.div
+              key={template.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <Link href={`/${template.slug}`} className="group block">
+                <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 group-hover:border-purple-500/50 transition-all">
+                  {/* Placeholder gradient based on template */}
+                  <div
+                    className={`absolute inset-0 ${getTemplateGradient(template.slug)}`}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-lg font-semibold text-white/50 group-hover:text-white/80 transition-colors">
+                      {template.name}
+                    </span>
+                  </div>
+
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="flex items-center gap-2 text-white font-medium">
+                      <ExternalLink size={18} />
+                      Preview Template
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold text-white group-hover:text-purple-300 transition-colors">
+                      {template.name}
+                    </h3>
+                    <span className="text-xs text-zinc-500">#{index + 1}</span>
+                  </div>
+                  <p className="text-sm text-zinc-400 line-clamp-2">
+                    {template.description}
+                  </p>
+                  <div className="flex flex-wrap gap-1 mt-3">
+                    {template.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-2 py-0.5 text-xs bg-zinc-800 text-zinc-400 rounded"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-800 mt-16">
+        <div className="max-w-7xl mx-auto px-4 py-8 text-center">
+          <p className="text-zinc-500 text-sm">
+            Built for{' '}
+            <a
+              href="https://earn.superteam.fun"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-purple-400 hover:text-purple-300"
+            >
+              Superteam Earn
+            </a>{' '}
+            · Hall of Fame Bounty
+          </p>
+        </div>
+      </footer>
     </div>
   );
+}
+
+function getTemplateGradient(slug: string): string {
+  const gradients: Record<string, string> = {
+    constellation: 'bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900',
+    'trading-cards': 'bg-gradient-to-br from-amber-900 to-amber-950',
+    'trophy-wall': 'bg-gradient-to-b from-yellow-600 to-yellow-800',
+    timeline: 'bg-gradient-to-br from-slate-800 to-slate-900',
+    leaderboard: 'bg-gradient-to-br from-purple-900 to-indigo-950',
+    museum: 'bg-gradient-to-br from-stone-800 to-stone-900',
+    minimalist: 'bg-gradient-to-br from-zinc-100 to-zinc-200',
+    glassmorphism: 'bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700',
+    brutalist: 'bg-black',
+    'retro-arcade': 'bg-gradient-to-br from-green-950 to-black',
+  };
+  return gradients[slug] || 'bg-zinc-800';
 }
