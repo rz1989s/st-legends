@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
+import { Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   CollectorNav,
   CollectorShowcase,
@@ -15,6 +17,18 @@ type ViewMode = 'showcase' | 'booster' | 'stack';
 
 export default function TradingCardsPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('showcase');
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredLegends = useMemo(() => {
+    if (!searchQuery) return legends;
+    const query = searchQuery.toLowerCase();
+    return legends.filter(l =>
+      l.name.toLowerCase().includes(query) ||
+      l.title.toLowerCase().includes(query) ||
+      l.bio.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-amber-950/20 to-stone-950">
@@ -63,6 +77,22 @@ export default function TradingCardsPage() {
               Each card tells a unique story of builders in the Solana ecosystem.
             </motion.p>
 
+            {/* Search Bar */}
+            <motion.div
+              className="flex justify-center mb-6"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+            >
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search cards..."
+                theme="trading-card"
+                className="max-w-md w-full"
+              />
+            </motion.div>
+
             {/* View mode selector */}
             <motion.div
               className="flex justify-center gap-2"
@@ -101,21 +131,21 @@ export default function TradingCardsPage() {
             transition={{ delay: 0.8 }}
           >
             {viewMode === 'showcase' && (
-              <CollectorShowcase legends={legends} />
+              <CollectorShowcase legends={filteredLegends} onSelect={setSelectedLegend} />
             )}
 
             {viewMode === 'booster' && (
               <div className="flex justify-center py-8">
                 <BoosterPack
-                  legends={legends.slice(0, 5)}
-                  onReveal={(legend) => console.log('Revealed:', legend.name)}
+                  legends={filteredLegends.slice(0, 5)}
+                  onReveal={(legend) => setSelectedLegend(legend)}
                 />
               </div>
             )}
 
             {viewMode === 'stack' && (
               <div className="flex justify-center py-8">
-                <CardStack legends={legends} />
+                <CardStack legends={filteredLegends} onSelect={setSelectedLegend} />
               </div>
             )}
           </motion.section>
@@ -152,6 +182,14 @@ export default function TradingCardsPage() {
           </motion.section>
         </div>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="trading-card"
+      />
     </div>
   );
 }

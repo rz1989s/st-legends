@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
+import { Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   ArcadeBackground,
   RetroNav,
@@ -14,14 +16,28 @@ import {
 } from './components';
 
 export default function RetroArcadePage() {
-  const [selectedLegend, setSelectedLegend] = useState(legends[0]);
+  const [featuredLegend, setFeaturedLegend] = useState(legends[0]);
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const categories = ['founders', 'contributors', 'achievers', 'legends'];
 
-  const filteredLegends = activeCategory
-    ? legends.filter((l) => l.category === activeCategory)
-    : legends;
+  const filteredLegends = useMemo(() => {
+    let result = activeCategory
+      ? legends.filter((l) => l.category === activeCategory)
+      : legends;
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(l =>
+        l.name.toLowerCase().includes(query) ||
+        l.title.toLowerCase().includes(query) ||
+        l.bio.toLowerCase().includes(query)
+      );
+    }
+    return result;
+  }, [activeCategory, searchQuery]);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -63,6 +79,17 @@ export default function RetroArcadePage() {
             </div>
           </motion.div>
 
+          {/* Search Bar */}
+          <div className="flex justify-center mb-8">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="SEARCH PLAYERS..."
+              theme="arcade"
+              className="max-w-md w-full"
+            />
+          </div>
+
           {/* Category Filter */}
           <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
             <PixelButton
@@ -102,19 +129,19 @@ export default function RetroArcadePage() {
                   <div className="flex items-center gap-6">
                     <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-pink-500 border-4 border-cyan-400 flex items-center justify-center">
                       <span className="font-mono text-3xl font-bold text-white">
-                        {selectedLegend.name.charAt(0)}
+                        {featuredLegend.name.charAt(0)}
                       </span>
                     </div>
                     <div>
                       <h3 className="font-mono text-2xl font-bold text-cyan-400 uppercase">
-                        {selectedLegend.name}
+                        {featuredLegend.name}
                       </h3>
                       <p className="font-mono text-pink-400 text-sm uppercase">
-                        {selectedLegend.title}
+                        {featuredLegend.title}
                       </p>
                       <div className="flex items-center gap-2 mt-2">
                         <span className="font-mono text-yellow-400 text-lg">
-                          {selectedLegend.xp.toLocaleString()} XP
+                          {featuredLegend.xp.toLocaleString()} XP
                         </span>
                       </div>
                     </div>
@@ -123,9 +150,9 @@ export default function RetroArcadePage() {
                   {/* Stats Bar */}
                   <div className="grid grid-cols-3 gap-4">
                     {[
-                      { label: 'PROJECTS', value: selectedLegend.stats?.projects || 0 },
-                      { label: 'CONTRIB', value: selectedLegend.stats?.contributions || 0 },
-                      { label: 'AWARDS', value: selectedLegend.stats?.awards || 0 },
+                      { label: 'PROJECTS', value: featuredLegend.stats?.projects || 0 },
+                      { label: 'CONTRIB', value: featuredLegend.stats?.contributions || 0 },
+                      { label: 'AWARDS', value: featuredLegend.stats?.awards || 0 },
                     ].map((stat) => (
                       <div
                         key={stat.label}
@@ -138,17 +165,21 @@ export default function RetroArcadePage() {
                   </div>
 
                   {/* Bio */}
-                  <div className="bg-slate-900 border-2 border-pink-500 p-3">
+                  <div
+                    className="bg-slate-900 border-2 border-pink-500 p-3 cursor-pointer hover:border-cyan-400 transition-colors"
+                    onClick={() => setSelectedLegend(featuredLegend)}
+                  >
                     <p className="font-mono text-sm text-slate-300 leading-relaxed">
-                      {selectedLegend.bio}
+                      {featuredLegend.bio}
                     </p>
+                    <p className="font-mono text-xs text-cyan-400 mt-2">Click for full details...</p>
                   </div>
 
                   {/* Achievements */}
                   <div className="space-y-2">
                     <span className="font-mono text-xs text-yellow-400 uppercase">Achievements:</span>
                     <div className="flex flex-wrap gap-2">
-                      {selectedLegend.achievements.slice(0, 3).map((ach, i) => (
+                      {featuredLegend.achievements.slice(0, 3).map((ach, i) => (
                         <motion.span
                           key={i}
                           className="px-2 py-1 bg-yellow-500/20 border border-yellow-500 font-mono text-xs text-yellow-400"
@@ -202,9 +233,10 @@ export default function RetroArcadePage() {
                   initial={{ y: 50, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: index * 0.1 }}
-                  onClick={() => setSelectedLegend(legend)}
+                  onClick={() => setFeaturedLegend(legend)}
+                  onDoubleClick={() => setSelectedLegend(legend)}
                   className={`cursor-pointer ${
-                    selectedLegend.id === legend.id ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-slate-950' : ''
+                    featuredLegend.id === legend.id ? 'ring-4 ring-cyan-400 ring-offset-2 ring-offset-slate-950' : ''
                   }`}
                 >
                   <PixelCard legend={legend} index={index} />
@@ -250,6 +282,14 @@ export default function RetroArcadePage() {
 
       {/* Global Scanline Overlay */}
       <ScanlineOverlay opacity={0.03} />
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="arcade"
+      />
     </div>
   );
 }

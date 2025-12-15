@@ -9,9 +9,10 @@ import { ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 interface CardStackProps {
   legends: Legend[];
   className?: string;
+  onSelect?: (legend: Legend) => void;
 }
 
-export function CardStack({ legends, className = '' }: CardStackProps) {
+export function CardStack({ legends, className = '', onSelect }: CardStackProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
 
@@ -96,8 +97,9 @@ export function CardStack({ legends, className = '' }: CardStackProps) {
               scale: { duration: 0.3 },
               rotateY: { duration: 0.4 },
             }}
-            className="w-64"
+            className="w-64 cursor-pointer"
             style={{ transformStyle: 'preserve-3d' }}
+            onClick={() => onSelect?.(currentLegend)}
           >
             <HolographicCard legend={currentLegend} />
           </motion.div>

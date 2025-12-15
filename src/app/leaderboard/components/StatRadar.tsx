@@ -10,12 +10,12 @@ interface StatRadarProps {
 }
 
 const STATS = [
-  { key: 'xp', label: 'XP', max: 30000 },
-  { key: 'achievements', label: 'Badges', max: 10 },
-  { key: 'contributions', label: 'Contrib', max: 100 },
+  { key: 'xp', label: 'XP', max: 50000 },
+  { key: 'achievements', label: 'Badges', max: 5 },
+  { key: 'contributions', label: 'Contrib', max: 1000 },
+  { key: 'projects', label: 'Projects', max: 100 },
+  { key: 'awards', label: 'Awards', max: 20 },
   { key: 'influence', label: 'Impact', max: 100 },
-  { key: 'activity', label: 'Activity', max: 100 },
-  { key: 'reputation', label: 'Rep', max: 100 },
 ];
 
 export function StatRadar({ legend, className = '' }: StatRadarProps) {
@@ -27,9 +27,9 @@ export function StatRadar({ legend, className = '' }: StatRadarProps) {
   const radius = 70;
   const angleStep = (Math.PI * 2) / STATS.length;
 
-  // Generate stat values (some derived from legend data)
+  // Generate stat values from actual legend data (deterministic)
   const statValues = useMemo(() => {
-    return STATS.map((stat, index) => {
+    return STATS.map((stat) => {
       let value: number;
       switch (stat.key) {
         case 'xp':
@@ -39,21 +39,31 @@ export function StatRadar({ legend, className = '' }: StatRadarProps) {
           value = legend.achievements.length / stat.max;
           break;
         case 'contributions':
-          value = 0.5 + Math.random() * 0.4; // Simulated
+          // Use actual contributions from stats, or derive from XP
+          value = (legend.stats?.contributions || Math.floor(legend.xp / 100)) / stat.max;
+          break;
+        case 'projects':
+          // Use actual projects from stats
+          value = (legend.stats?.projects || Math.floor(legend.xp / 500)) / stat.max;
+          break;
+        case 'awards':
+          // Use actual awards from stats
+          value = (legend.stats?.awards || legend.achievements.length) / stat.max;
           break;
         case 'influence':
-          value = legend.category === 'founders' ? 0.9 : legend.category === 'legends' ? 0.8 : 0.6;
-          break;
-        case 'activity':
-          value = 0.6 + Math.random() * 0.3; // Simulated
-          break;
-        case 'reputation':
-          value = 0.7 + Math.random() * 0.25; // Simulated
+          // Category-based influence score (deterministic)
+          const influenceMap: Record<string, number> = {
+            founders: 90,
+            legends: 85,
+            contributors: 70,
+            achievers: 60,
+          };
+          value = (influenceMap[legend.category] || 50) / stat.max;
           break;
         default:
           value = 0.5;
       }
-      return Math.min(value, 1);
+      return Math.min(Math.max(value, 0.1), 1); // Clamp between 0.1 and 1
     });
   }, [legend]);
 

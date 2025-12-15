@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
 import { Category, Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   InteractiveStarField,
   NebulaGradient,
@@ -16,6 +17,8 @@ import {
 export default function ConstellationPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [hoveredLegend, setHoveredLegend] = useState<Legend | null>(null);
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Calculate legend counts per category
   const legendCounts = useMemo(() => {
@@ -83,6 +86,24 @@ export default function ConstellationPage() {
             >
               Hover over stars to reveal their story • Click for details
             </motion.p>
+          </motion.section>
+
+          {/* Search Bar */}
+          <motion.section
+            className="mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+          >
+            <div className="flex justify-center">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search the galaxy..."
+                theme="constellation"
+                className="max-w-md w-full"
+              />
+            </div>
           </motion.section>
 
           {/* Category Filter */}
@@ -185,6 +206,14 @@ export default function ConstellationPage() {
           </motion.section>
         </div>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="constellation"
+      />
     </div>
   );
 }

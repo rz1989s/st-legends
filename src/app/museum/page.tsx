@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
-import { CATEGORIES } from '@/lib/types';
+import { CATEGORIES, Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   ExhibitFrame,
   MuseumHall,
@@ -15,12 +16,24 @@ import {
 } from './components';
 
 export default function MuseumPage() {
-  const [selectedLegend, setSelectedLegend] = useState(legends[0]);
+  const [featuredLegend, setFeaturedLegend] = useState(legends[0]);
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredLegends = useMemo(() => {
+    if (!searchQuery) return legends;
+    const query = searchQuery.toLowerCase();
+    return legends.filter(l =>
+      l.name.toLowerCase().includes(query) ||
+      l.title.toLowerCase().includes(query) ||
+      l.bio.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
 
   // Group legends by category
   const legendsByCategory = CATEGORIES.map(cat => ({
     category: cat,
-    legends: legends.filter(l => l.category === cat.value),
+    legends: filteredLegends.filter(l => l.category === cat.value),
   }));
 
   return (
@@ -73,18 +86,31 @@ export default function MuseumPage() {
           </motion.div>
         </motion.section>
 
+        {/* Search Bar */}
+        <div className="max-w-6xl mx-auto px-4 mb-8">
+          <SearchBar
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search exhibits..."
+            theme="museum"
+            className="max-w-md mx-auto"
+          />
+        </div>
+
         {/* Featured exhibit */}
         <section className="max-w-6xl mx-auto px-4 mb-24">
           <MuseumHall title="Featured Exhibit">
             <div className="flex flex-col lg:flex-row items-center justify-center gap-12">
               {/* Main exhibit */}
-              <Spotlight intensity="high" color="warm">
-                <ExhibitFrame legend={selectedLegend} size="lg" />
-              </Spotlight>
+              <div onClick={() => setSelectedLegend(featuredLegend)} className="cursor-pointer">
+                <Spotlight intensity="high" color="warm">
+                  <ExhibitFrame legend={featuredLegend} size="lg" />
+                </Spotlight>
+              </div>
 
               {/* Info plaque */}
               <div className="w-full max-w-sm">
-                <ArtPlaque legend={selectedLegend} variant="brass" />
+                <ArtPlaque legend={featuredLegend} variant="brass" />
               </div>
             </div>
 
@@ -97,30 +123,32 @@ export default function MuseumPage() {
 
         {/* Gallery sections by category */}
         {legendsByCategory.map(({ category, legends: catLegends }) => (
-          <section key={category.value} className="mb-24">
-            <MuseumHall title={`${category.emoji} ${category.label} Gallery`}>
-              <div className="flex flex-wrap justify-center gap-8 md:gap-12">
-                {catLegends.map((legend, index) => (
-                  <div
-                    key={legend.id}
-                    onClick={() => setSelectedLegend(legend)}
-                    className="cursor-pointer"
-                  >
-                    <Spotlight
-                      active={selectedLegend.id === legend.id}
-                      intensity={selectedLegend.id === legend.id ? 'high' : 'low'}
+          catLegends.length > 0 && (
+            <section key={category.value} className="mb-24">
+              <MuseumHall title={`${category.emoji} ${category.label} Gallery`}>
+                <div className="flex flex-wrap justify-center gap-8 md:gap-12">
+                  {catLegends.map((legend, index) => (
+                    <div
+                      key={legend.id}
+                      onClick={() => setSelectedLegend(legend)}
+                      className="cursor-pointer"
                     >
-                      <ExhibitFrame
-                        legend={legend}
-                        index={index}
-                        size="md"
-                      />
-                    </Spotlight>
-                  </div>
-                ))}
-              </div>
-            </MuseumHall>
-          </section>
+                      <Spotlight
+                        active={featuredLegend.id === legend.id}
+                        intensity={featuredLegend.id === legend.id ? 'high' : 'low'}
+                      >
+                        <ExhibitFrame
+                          legend={legend}
+                          index={index}
+                          size="md"
+                        />
+                      </Spotlight>
+                    </div>
+                  ))}
+                </div>
+              </MuseumHall>
+            </section>
+          )
         ))}
 
         {/* Footer section */}
@@ -145,6 +173,14 @@ export default function MuseumPage() {
           </p>
         </motion.section>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="museum"
+      />
     </div>
   );
 }

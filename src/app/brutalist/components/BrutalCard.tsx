@@ -85,6 +85,25 @@ export function BrutalCard({ legend, index = 0, className = '' }: BrutalCardProp
             </div>
           </div>
 
+          {/* Achievement badges */}
+          {legend.achievements.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {legend.achievements.slice(0, 2).map((ach, i) => (
+                <span
+                  key={i}
+                  className="px-2 py-1 text-xs font-mono uppercase bg-black text-white"
+                >
+                  {ach.title}
+                </span>
+              ))}
+              {legend.achievements.length > 2 && (
+                <span className="px-2 py-1 text-xs font-mono uppercase border-2 border-black text-black">
+                  +{legend.achievements.length - 2} MORE
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Category */}
           <div className="mt-4 pt-4 border-t-2 border-black">
             <span className="text-xs font-mono uppercase tracking-widest text-black/50">

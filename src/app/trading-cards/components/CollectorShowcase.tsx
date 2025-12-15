@@ -9,9 +9,10 @@ import { Filter, Grid, Layers } from 'lucide-react';
 interface CollectorShowcaseProps {
   legends: Legend[];
   className?: string;
+  onSelect?: (legend: Legend) => void;
 }
 
-export function CollectorShowcase({ legends, className = '' }: CollectorShowcaseProps) {
+export function CollectorShowcase({ legends, className = '', onSelect }: CollectorShowcaseProps) {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'stack'>('grid');
 
@@ -105,6 +106,8 @@ export function CollectorShowcase({ legends, className = '' }: CollectorShowcase
                 visible: { opacity: 1, y: 0 },
               }}
               transition={{ duration: 0.4 }}
+              onClick={() => onSelect?.(legend)}
+              className="cursor-pointer"
             >
               <HolographicCard legend={legend} />
             </motion.div>
@@ -117,7 +120,7 @@ export function CollectorShowcase({ legends, className = '' }: CollectorShowcase
             {filteredLegends.map((legend, index) => (
               <motion.div
                 key={legend.id}
-                className="absolute top-0 left-0 w-full"
+                className="absolute top-0 left-0 w-full cursor-pointer"
                 initial={{ opacity: 0, x: 100 }}
                 animate={{
                   opacity: 1,
@@ -132,6 +135,7 @@ export function CollectorShowcase({ legends, className = '' }: CollectorShowcase
                   zIndex: 100,
                   rotate: 0,
                 }}
+                onClick={() => onSelect?.(legend)}
               >
                 <HolographicCard legend={legend} />
               </motion.div>

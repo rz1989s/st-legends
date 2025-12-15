@@ -3,7 +3,8 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
-import { Category, CATEGORIES } from '@/lib/types';
+import { Category, CATEGORIES, Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   BrutalCard,
   RawText,
@@ -19,11 +20,24 @@ import {
 
 export default function BrutalistPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredLegends = useMemo(() => {
-    if (selectedCategory === 'all') return legends;
-    return legends.filter(l => l.category === selectedCategory);
-  }, [selectedCategory]);
+    let result = legends;
+    if (selectedCategory !== 'all') {
+      result = result.filter(l => l.category === selectedCategory);
+    }
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(l =>
+        l.name.toLowerCase().includes(query) ||
+        l.title.toLowerCase().includes(query) ||
+        l.bio.toLowerCase().includes(query)
+      );
+    }
+    return result;
+  }, [selectedCategory, searchQuery]);
 
   return (
     <div className="min-h-screen overflow-x-hidden text-black">
@@ -81,6 +95,17 @@ export default function BrutalistPage() {
             </motion.div>
           </section>
 
+          {/* Search section */}
+          <section className="mb-8">
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              placeholder="SEARCH LEGENDS..."
+              theme="brutalist"
+              className="max-w-md"
+            />
+          </section>
+
           {/* Filter section */}
           <section className="mb-12">
             <div className="flex flex-wrap gap-2">
@@ -114,11 +139,16 @@ export default function BrutalistPage() {
           <section>
             <div className="grid md:grid-cols-2 gap-8">
               {filteredLegends.map((legend, index) => (
-                <BrutalCard
+                <div
                   key={legend.id}
-                  legend={legend}
-                  index={index}
-                />
+                  onClick={() => setSelectedLegend(legend)}
+                  className="cursor-pointer"
+                >
+                  <BrutalCard
+                    legend={legend}
+                    index={index}
+                  />
+                </div>
               ))}
             </div>
           </section>
@@ -136,6 +166,14 @@ export default function BrutalistPage() {
           </section>
         </div>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="brutalist"
+      />
     </div>
   );
 }

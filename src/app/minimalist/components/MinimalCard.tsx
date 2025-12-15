@@ -86,6 +86,25 @@ export function MinimalCard({ legend, index = 0, className = '' }: MinimalCardPr
               {legend.bio}
             </p>
 
+            {/* Achievement badges */}
+            {legend.achievements.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {legend.achievements.slice(0, 2).map((ach, i) => (
+                  <span
+                    key={i}
+                    className="px-2 py-0.5 text-[10px] font-medium text-neutral-500 bg-neutral-100 rounded"
+                  >
+                    {ach.title}
+                  </span>
+                ))}
+                {legend.achievements.length > 2 && (
+                  <span className="px-2 py-0.5 text-[10px] font-medium text-neutral-400">
+                    +{legend.achievements.length - 2}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Meta row */}
             <motion.div
               className="flex items-center gap-4 mt-4 pt-4 border-t border-neutral-100"
@@ -105,7 +124,7 @@ export function MinimalCard({ legend, index = 0, className = '' }: MinimalCardPr
               </span>
               <span className="text-xs text-neutral-300">•</span>
               <span className="text-xs text-neutral-400">
-                {legend.achievements.length} achievements
+                {legend.xp.toLocaleString()} XP
               </span>
             </motion.div>
           </div>

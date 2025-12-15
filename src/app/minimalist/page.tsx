@@ -3,7 +3,8 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
-import { Category } from '@/lib/types';
+import { Category, Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   MinimalCard,
   TypeGridSection,
@@ -16,11 +17,24 @@ import {
 
 export default function MinimalistPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredLegends = useMemo(() => {
-    if (selectedCategory === 'all') return legends;
-    return legends.filter(l => l.category === selectedCategory);
-  }, [selectedCategory]);
+    let result = legends;
+    if (selectedCategory !== 'all') {
+      result = result.filter(l => l.category === selectedCategory);
+    }
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(l =>
+        l.name.toLowerCase().includes(query) ||
+        l.title.toLowerCase().includes(query) ||
+        l.bio.toLowerCase().includes(query)
+      );
+    }
+    return result;
+  }, [selectedCategory, searchQuery]);
 
   return (
     <div className="min-h-screen overflow-x-hidden text-neutral-900">
@@ -91,10 +105,19 @@ export default function MinimalistPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1 }}
           >
-            <CleanFilter
-              selected={selectedCategory}
-              onChange={setSelectedCategory}
-            />
+            <div className="flex flex-col md:flex-row md:items-center gap-4 justify-between">
+              <CleanFilter
+                selected={selectedCategory}
+                onChange={setSelectedCategory}
+              />
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search legends..."
+                theme="light"
+                className="max-w-xs"
+              />
+            </div>
           </motion.section>
 
           {/* Legends list */}
@@ -104,11 +127,16 @@ export default function MinimalistPage() {
           >
             <div className="border-t border-neutral-200">
               {filteredLegends.map((legend, index) => (
-                <MinimalCard
+                <div
                   key={legend.id}
-                  legend={legend}
-                  index={index}
-                />
+                  onClick={() => setSelectedLegend(legend)}
+                  className="cursor-pointer"
+                >
+                  <MinimalCard
+                    legend={legend}
+                    index={index}
+                  />
+                </div>
               ))}
             </div>
           </TypeGridSection>
@@ -129,6 +157,14 @@ export default function MinimalistPage() {
           </motion.footer>
         </div>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="light"
+      />
     </div>
   );
 }

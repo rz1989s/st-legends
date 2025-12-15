@@ -3,7 +3,8 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
-import { Category, CATEGORIES } from '@/lib/types';
+import { Category, CATEGORIES, Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   GlassCard,
   GlassNav,
@@ -17,11 +18,24 @@ import { Sparkles } from 'lucide-react';
 
 export default function GlassmorphismPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const filteredLegends = useMemo(() => {
-    if (selectedCategory === 'all') return legends;
-    return legends.filter(l => l.category === selectedCategory);
-  }, [selectedCategory]);
+    let result = legends;
+    if (selectedCategory !== 'all') {
+      result = result.filter(l => l.category === selectedCategory);
+    }
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(l =>
+        l.name.toLowerCase().includes(query) ||
+        l.title.toLowerCase().includes(query) ||
+        l.bio.toLowerCase().includes(query)
+      );
+    }
+    return result;
+  }, [selectedCategory, searchQuery]);
 
   const filterOptions = [
     { value: 'all', label: 'All' },
@@ -84,11 +98,20 @@ export default function GlassmorphismPage() {
                   Showing {filteredLegends.length} of {legends.length} legends
                 </p>
               </div>
-              <GlassFilter
-                options={filterOptions}
-                selected={selectedCategory}
-                onChange={(val) => setSelectedCategory(val as Category | 'all')}
-              />
+              <div className="flex flex-col md:flex-row gap-4">
+                <SearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholder="Search legends..."
+                  theme="glass"
+                  className="w-full md:w-64"
+                />
+                <GlassFilter
+                  options={filterOptions}
+                  selected={selectedCategory}
+                  onChange={(val) => setSelectedCategory(val as Category | 'all')}
+                />
+              </div>
             </div>
           </FrostedPanel>
 
@@ -98,11 +121,16 @@ export default function GlassmorphismPage() {
             layout
           >
             {filteredLegends.map((legend, index) => (
-              <GlassCard
+              <div
                 key={legend.id}
-                legend={legend}
-                index={index}
-              />
+                onClick={() => setSelectedLegend(legend)}
+                className="cursor-pointer"
+              >
+                <GlassCard
+                  legend={legend}
+                  index={index}
+                />
+              </div>
             ))}
           </motion.div>
 
@@ -130,6 +158,14 @@ export default function GlassmorphismPage() {
           </BlurReveal>
         </div>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="glass"
+      />
     </div>
   );
 }

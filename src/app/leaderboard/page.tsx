@@ -3,7 +3,8 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
-import { Category, CATEGORIES } from '@/lib/types';
+import { Category, CATEGORIES, Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   LeaderboardPodium,
   RankingRow,
@@ -18,16 +19,27 @@ import { Trophy, Users, Zap, Target } from 'lucide-react';
 
 export default function LeaderboardPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
-  const [selectedLegend, setSelectedLegend] = useState(legends[0]);
+  const [hoveredLegend, setHoveredLegend] = useState(legends[0]);
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Sort legends by XP for rankings
   const rankedLegends = useMemo(() => {
-    const filtered = selectedCategory === 'all'
+    let filtered = selectedCategory === 'all'
       ? legends
       : legends.filter(l => l.category === selectedCategory);
 
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(l =>
+        l.name.toLowerCase().includes(query) ||
+        l.title.toLowerCase().includes(query) ||
+        l.bio.toLowerCase().includes(query)
+      );
+    }
+
     return [...filtered].sort((a, b) => b.xp - a.xp);
-  }, [selectedCategory]);
+  }, [selectedCategory, searchQuery]);
 
   // Get top 3 for podium
   const topThree = rankedLegends.slice(0, 3);
@@ -94,13 +106,23 @@ export default function LeaderboardPage() {
             <LeaderboardPodium legends={topThree} />
           </motion.section>
 
-          {/* Category filter */}
+          {/* Search and Category filter */}
           <motion.div
-            className="flex flex-wrap justify-center gap-2 mb-8"
+            className="mb-8 space-y-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
+            <div className="flex justify-center">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search rankings..."
+                theme="dark"
+                className="w-full max-w-md"
+              />
+            </div>
+            <div className="flex flex-wrap justify-center gap-2">
             <button
               onClick={() => setSelectedCategory('all')}
               className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
@@ -124,6 +146,7 @@ export default function LeaderboardPage() {
                 {cat.label}
               </button>
             ))}
+            </div>
           </motion.div>
 
           {/* Main content grid */}
@@ -142,7 +165,8 @@ export default function LeaderboardPage() {
               {rankedLegends.map((legend, index) => (
                 <div
                   key={legend.id}
-                  onClick={() => setSelectedLegend(legend)}
+                  onClick={() => setHoveredLegend(legend)}
+                  onDoubleClick={() => setSelectedLegend(legend)}
                   className="cursor-pointer"
                 >
                   <RankingRow
@@ -167,43 +191,48 @@ export default function LeaderboardPage() {
               </h3>
 
               {/* Selected legend card */}
-              <div className="bg-slate-900/80 rounded-xl border border-slate-700/50 p-6 backdrop-blur-sm">
+              <div
+                className="bg-slate-900/80 rounded-xl border border-slate-700/50 p-6 backdrop-blur-sm cursor-pointer hover:border-cyan-500/50 transition-colors"
+                onClick={() => setSelectedLegend(hoveredLegend)}
+              >
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-purple-500 flex items-center justify-center text-2xl font-bold text-white">
-                    {selectedLegend.name.charAt(0)}
+                    {hoveredLegend.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="text-xl font-bold text-white">{selectedLegend.name}</h4>
-                    <p className="text-slate-400 text-sm">{selectedLegend.title}</p>
+                    <h4 className="text-xl font-bold text-white">{hoveredLegend.name}</h4>
+                    <p className="text-slate-400 text-sm">{hoveredLegend.title}</p>
                   </div>
                 </div>
 
                 {/* Tier badge */}
                 <div className="flex justify-center mb-6">
                   <TierBadge
-                    tier={getTierFromXP(selectedLegend.xp)}
-                    xp={selectedLegend.xp}
+                    tier={getTierFromXP(hoveredLegend.xp)}
+                    xp={hoveredLegend.xp}
                     size="lg"
                   />
                 </div>
 
                 {/* Radar chart */}
                 <div className="flex justify-center">
-                  <StatRadar legend={selectedLegend} className="w-48 h-48" />
+                  <StatRadar legend={hoveredLegend} className="w-48 h-48" />
                 </div>
+
+                <p className="text-center text-xs text-slate-500 mt-4">Click for full details</p>
               </div>
 
               {/* Quick stats */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700/30">
                   <p className="text-2xl font-bold text-cyan-400 font-mono">
-                    {selectedLegend.xp.toLocaleString()}
+                    {hoveredLegend.xp.toLocaleString()}
                   </p>
                   <p className="text-xs text-slate-500">Total XP</p>
                 </div>
                 <div className="bg-slate-900/60 rounded-lg p-4 border border-slate-700/30">
                   <p className="text-2xl font-bold text-amber-400 font-mono">
-                    {selectedLegend.achievements.length}
+                    {hoveredLegend.achievements.length}
                   </p>
                   <p className="text-xs text-slate-500">Achievements</p>
                 </div>
@@ -212,6 +241,14 @@ export default function LeaderboardPage() {
           </div>
         </div>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="dark"
+      />
     </div>
   );
 }

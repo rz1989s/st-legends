@@ -3,7 +3,8 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends, getFeaturedLegends } from '@/lib/data';
-import { Category } from '@/lib/types';
+import { Category, Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   GoldPlaque,
   TrophyPedestal,
@@ -16,10 +17,24 @@ import { Trophy, Star, Award, Medal } from 'lucide-react';
 
 export default function TrophyWallPage() {
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredLegends = selectedCategory === 'all'
-    ? legends
-    : legends.filter(l => l.category === selectedCategory);
+  const filteredLegends = useMemo(() => {
+    let result = selectedCategory === 'all'
+      ? legends
+      : legends.filter(l => l.category === selectedCategory);
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(l =>
+        l.name.toLowerCase().includes(query) ||
+        l.title.toLowerCase().includes(query) ||
+        l.bio.toLowerCase().includes(query)
+      );
+    }
+    return result;
+  }, [selectedCategory, searchQuery]);
 
   const featuredLegends = filteredLegends.filter(l => l.featured).slice(0, 3);
   const otherLegends = filteredLegends.filter(l => !featuredLegends.includes(l));
@@ -81,13 +96,22 @@ export default function TrophyWallPage() {
             </motion.p>
           </motion.section>
 
-          {/* Category Filter */}
+          {/* Search and Category Filter */}
           <motion.section
-            className="mb-12"
+            className="mb-12 space-y-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
+            <div className="flex justify-center">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search honorees..."
+                theme="trophy"
+                className="max-w-md w-full"
+              />
+            </div>
             <CategoryFilter
               selected={selectedCategory}
               onChange={setSelectedCategory}
@@ -145,6 +169,8 @@ export default function TrophyWallPage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.8 + index * 0.05 }}
+                  onClick={() => setSelectedLegend(legend)}
+                  className="cursor-pointer"
                 >
                   <GoldPlaque legend={legend} size="md" />
                 </motion.div>
@@ -183,6 +209,14 @@ export default function TrophyWallPage() {
           </motion.section>
         </div>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="trophy"
+      />
     </div>
   );
 }

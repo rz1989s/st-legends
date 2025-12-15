@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { legends } from '@/lib/data';
-import { Category, CATEGORIES } from '@/lib/types';
+import { Category, CATEGORIES, Legend } from '@/lib/types';
+import { LegendDetailModal, SearchBar } from '@/components/shared';
 import {
   ScrollProgress,
   TimelineNode,
@@ -16,6 +17,20 @@ import {
 import { Clock, Sparkles } from 'lucide-react';
 
 export default function TimelinePage() {
+  const [selectedLegend, setSelectedLegend] = useState<Legend | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filter legends by search
+  const filteredLegendsList = useMemo(() => {
+    if (!searchQuery) return legends;
+    const query = searchQuery.toLowerCase();
+    return legends.filter(l =>
+      l.name.toLowerCase().includes(query) ||
+      l.title.toLowerCase().includes(query) ||
+      l.bio.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
   // Group legends by category and sort by join date
   const groupedLegends = useMemo(() => {
     const groups: Record<Category, typeof legends> = {
@@ -90,6 +105,22 @@ export default function TimelinePage() {
               builders who shaped the Solana ecosystem.
             </motion.p>
 
+            {/* Search Bar */}
+            <motion.div
+              className="flex justify-center mb-8"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search timeline..."
+                theme="timeline"
+                className="max-w-md w-full"
+              />
+            </motion.div>
+
             {/* Scroll indicator */}
             <motion.div
               className="flex flex-col items-center gap-2 text-slate-500"
@@ -114,7 +145,9 @@ export default function TimelinePage() {
 
             {/* Categories */}
             {CATEGORIES.map((cat, catIndex) => {
-              const categoryLegends = groupedLegends[cat.value];
+              const categoryLegends = groupedLegends[cat.value].filter(l =>
+                filteredLegendsList.some(fl => fl.id === l.id)
+              );
               if (categoryLegends.length === 0) return null;
 
               return (
@@ -128,12 +161,17 @@ export default function TimelinePage() {
                   {/* Nodes */}
                   <div className="space-y-8 md:space-y-0">
                     {categoryLegends.map((legend, index) => (
-                      <TimelineNode
+                      <div
                         key={legend.id}
-                        legend={legend}
-                        index={index}
-                        isLeft={index % 2 === 0}
-                      />
+                        onClick={() => setSelectedLegend(legend)}
+                        className="cursor-pointer"
+                      >
+                        <TimelineNode
+                          legend={legend}
+                          index={index}
+                          isLeft={index % 2 === 0}
+                        />
+                      </div>
                     ))}
                   </div>
                 </section>
@@ -155,6 +193,14 @@ export default function TimelinePage() {
           </motion.div>
         </div>
       </main>
+
+      {/* Legend Detail Modal */}
+      <LegendDetailModal
+        legend={selectedLegend}
+        isOpen={!!selectedLegend}
+        onClose={() => setSelectedLegend(null)}
+        theme="timeline"
+      />
     </div>
   );
 }
